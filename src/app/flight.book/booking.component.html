@@ -1,0 +1,22 @@
+<h2>Book a Flight</h2>
+
+<form (ngSubmit)="bookFlight()">
+  <input
+    type="text"
+    placeholder="Flight Number"
+    [(ngModel)]="booking.flightNumber"
+    name="flightNumber"
+    required
+  />
+
+  <input
+    type="text"
+    placeholder="Passenger Name"
+    [(ngModel)]="booking.name"
+    name="name"
+    required
+  />
+
+  <button type="submit">Book Flight</button>
+  
+</form>

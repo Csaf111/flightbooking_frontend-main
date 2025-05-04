@@ -1,0 +1,20 @@
+<div class="flight-search">
+    <input
+      type="text"
+      placeholder="Search by origin or destination"
+      [(ngModel)]="searchTerm"
+      (input)="filterFlights()"
+    />
+  </div>
+  
+  <div class="flights-grid">
+    <div class="flight-card" *ngFor="let flight of filteredFlights">
+      <h3>{{ flight.airline }}</h3>
+      <p><strong>From:</strong> {{ flight.origin }}</p>
+      <p><strong>To:</strong> {{ flight.destination }}</p>
+      <p><strong>Departure:</strong> {{ flight.departureTime }}</p>
+      <p><strong>Arrival:</strong> {{ flight.arrivalTime }}</p>
+      <p><strong>Price:</strong> ${{ flight.price }}</p>
+    </div>
+  </div>
+  

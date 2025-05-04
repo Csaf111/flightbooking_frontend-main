@@ -1,0 +1,94 @@
+<h2>Welcome to Flight Booking Dashboard</h2>
+
+<hr />
+
+<h3>Available Flights</h3>
+<table border="1" width="100%">
+  <thead>
+    <tr>
+      <th>Flight Number</th>
+      <th>Departure</th>
+      <th>Arrival</th>
+      <th>Departure Time</th>
+      <th>Arrival Time</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let flight of flights">
+      <td>{{ flight.flight_number }}</td>
+      <td>{{ flight.departure_airport }}</td>
+      <td>{{ flight.arrival_airport }}</td>
+      <td>{{ flight.departure_time }}</td>
+      <td>{{ flight.arrival_time }}</td>
+      <td>{{ flight.price }}</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<hr />
+
+<h3>{{ editingId ? 'Edit Booking' : 'Book a Flight' }}</h3>
+<form (ngSubmit)="editingId ? updateBooking() : bookFlight()" #bookingForm="ngForm">
+  <label>Flight Number:
+    <input name="flight_number" [(ngModel)]="booking.flight_number" required />
+  </label><br />
+  <label>Passenger Name:
+    <input name="passenger_name" [(ngModel)]="booking.passenger_name" required />
+  </label><br />
+  <label>Passport Number:
+    <input name="passport_number" [(ngModel)]="booking.passport_number" required />
+  </label><br />
+  <label>Email:
+    <input name="email" [(ngModel)]="booking.email" required />
+  </label><br />
+  <label>Phone Number:
+    <input name="phone_number" [(ngModel)]="booking.phone_number" required />
+  </label><br />
+  <label>Seat Class:
+    <select name="seat_class" [(ngModel)]="booking.seat_class" required>
+      <option value="Economy">Economy</option>
+      <option value="Business">Business</option>
+      <option value="First">First</option>
+    </select>
+  </label><br />
+  <label>Contact Details:
+    <textarea name="contact_details" [(ngModel)]="booking.contact_details"></textarea>
+  </label><br />
+
+  <button type="submit" [disabled]="bookingForm.invalid">
+    {{ editingId ? 'Update Booking' : 'Book Flight' }}
+  </button>
+</form>
+
+<hr />
+
+<h3>Your Bookings</h3>
+<table border="1" width="100%">
+  <thead>
+    <tr>
+      <th>Flight</th>
+      <th>Passenger</th>
+      <th>Passport</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Seat Class</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let booking of bookings">
+      <td>{{ booking.flight_number }}</td>
+      <td>{{ booking.passenger_name }}</td>
+      <td>{{ booking.passport_number }}</td>
+      <td>{{ booking.email }}</td>
+      <td>{{ booking.phone_number }}</td>
+      <td>{{ booking.seat_class }}</td>
+      <td>
+        <button (click)="editBooking(booking)">Edit</button>
+        <button (click)="deleteBooking(booking._id)">Cancel</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

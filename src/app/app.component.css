@@ -1,0 +1,16 @@
+nav {
+    padding: 1rem;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  nav a {
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #007acc;
+  }
+  
+  nav a:hover {
+    text-decoration: underline;
+  }
+  

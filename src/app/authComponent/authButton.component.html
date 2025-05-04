@@ -1,0 +1,9 @@
+<ng-container *ngIf="(auth.isAuthenticated$ | async) === false">
+    <button (click)="login()">Login</button>
+    <button (click)="signup()">Sign Up</button>
+  </ng-container>
+  
+  <ng-container *ngIf="auth.isAuthenticated$ | async">
+    <button (click)="logout()">Logout</button>
+  </ng-container>
+  
