@@ -11,25 +11,22 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
-  user = { username: '', password: '' }; // ✅ Match backend credentials
+  user = { username: '', password: '' };
   loginError = false;
+  errorMessage = '';
 
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   login(): void {
     this.authService.login(this.user).subscribe({
-      next: (res: any) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-        this.authService.setLoggedIn(true);
-        this.router.navigate(['/dashboard']); // ✅ redirect after login
+      next: () => {
+        this.loginError = false;
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        console.error('Login failed', err);
+        console.error('Login failed:', err);
         this.loginError = true;
+        this.errorMessage = err?.error?.message || 'Login failed. Please try again.';
       }
     });
   }

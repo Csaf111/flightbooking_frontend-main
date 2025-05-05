@@ -1,13 +1,19 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http'; // ✅ Fix 2: Import HttpClient and HttpHeaders
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs'; // ✅ Fix 1: Import Observable
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private loggedIn = new BehaviorSubject<boolean>(typeof window !== 'undefined' && !!localStorage.getItem('token'));
+  private loggedIn = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.loggedIn.asObservable();
 
-  constructor(private http: HttpClient) {} // ✅ Fix 3: Inject HttpClient
+  constructor(private http: HttpClient) {
+    // ✅ Initialize login status only if in browser
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      this.loggedIn.next(!!token);
+    }
+  }
 
   get user(): any {
     if (typeof window === 'undefined') return null;
@@ -29,6 +35,15 @@ export class AuthService {
 
   login(user: { username: string; password: string }): Observable<any> {
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
-    return this.http.post('http://127.0.0.1:5001/login', user, { headers });
+    return this.http.post<{ token: string; user: any }>('http://127.0.0.1:5001/login', user, { headers })
+      .pipe(
+        tap(response => {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+          }
+          this.setLoggedIn(true);
+        })
+      );
   }
 }

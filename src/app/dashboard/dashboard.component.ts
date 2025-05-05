@@ -1,20 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms'; // Required for ngModel, ngForm
+import { AuthService } from '../services/auth.service';
 import { FlightService } from '../services/flight.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule], // ✅ Add FormsModule + CommonModule here
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   flights: any[] = [];
   bookings: any[] = [];
-  editingId: string | null = null;
-
   booking: any = {
     flight_number: '',
     passenger_name: '',
@@ -24,58 +22,63 @@ export class DashboardComponent {
     seat_class: '',
     contact_details: ''
   };
+  editingId: string | null = null;
 
-  constructor(private flightService: FlightService) {}
+  constructor(
+    private flightService: FlightService,
+    public authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.flightService.getAllBookings().subscribe({
-      next: (data) => this.bookings = data,
-      error: (err) => console.error('Error fetching bookings', err)
-    });
-
     this.loadFlights();
+    const user = this.authService.user;
+    if (user) this.loadBookings();
   }
 
   loadFlights(): void {
     this.flightService.getAllFlights().subscribe({
-      next: (flights) => this.flights = flights,
-      error: (err) => console.error('Error loading flights', err)
+      next: flights => this.flights = flights,
+      error: err => console.error('Error loading flights', err)
+    });
+  }
+
+  loadBookings(): void {
+    this.flightService.getAllBookings().subscribe({
+      next: data => this.bookings = data,
+      error: err => console.error('Error fetching bookings', err)
     });
   }
 
   bookFlight(): void {
     this.flightService.createBooking(this.booking).subscribe({
       next: () => {
-        this.ngOnInit(); // Refresh bookings
-        this.resetForm();
         alert('Booking successful');
+        this.resetForm();
+        this.loadBookings();
       },
-      error: (err) => console.error('Error booking flight', err)
+      error: err => console.error('Error booking flight', err)
     });
   }
 
   editBooking(booking: any): void {
-    this.booking = { ...booking };  // Load data into form
-    this.editingId = booking._id;   // Enable update mode
+    this.booking = { ...booking };
+    this.editingId = booking._id;
   }
 
   updateBooking(): void {
     if (!this.editingId) return;
-
     this.flightService.updateBooking(this.editingId, this.booking).subscribe({
       next: () => {
-        this.ngOnInit();
-        this.resetForm();
         alert('Booking updated');
+        this.resetForm();
+        this.loadBookings();
       },
-      error: (err) => console.error('Error updating booking', err)
+      error: err => console.error('Error updating booking', err)
     });
   }
 
   deleteBooking(id: string): void {
-    this.flightService.deleteBooking(id).subscribe(() => {
-      this.ngOnInit(); // Refresh after deletion
-    });
+    this.flightService.deleteBooking(id).subscribe(() => this.loadBookings());
   }
 
   resetForm(): void {
