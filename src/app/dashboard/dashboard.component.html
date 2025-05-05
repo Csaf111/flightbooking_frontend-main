@@ -62,6 +62,10 @@
   </button>
 </form>
 
+<div *ngIf="bookingMessage" class="text-success fw-bold mt-2">{{ bookingMessage }}</div>
+<div *ngIf="bookingError" class="text-danger fw-bold mt-2">{{ bookingError }}</div>
+
+
 <hr />
 
 <h3>Your Bookings</h3>

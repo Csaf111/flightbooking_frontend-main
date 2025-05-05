@@ -15,6 +15,7 @@ export class SignupComponent {
   user = { username: '', email: '', password: '' };
   signupSuccess = false;
   signupError = false;
+  errorMessage = '';
 
   constructor(
     private http: HttpClient,
@@ -23,17 +24,23 @@ export class SignupComponent {
   ) {}
 
   signup(): void {
+    this.signupSuccess = false;
+    this.signupError = false;
+    this.errorMessage = '';
+
     this.http.post('http://127.0.0.1:5001/register', this.user, {
       headers: { 'Content-Type': 'application/json' }
     }).subscribe({
       next: (res: any) => {
         localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user)); // ✅ store user info
+        localStorage.setItem('user', JSON.stringify(res.user));
         this.authService.setLoggedIn(true);
-        this.router.navigate(['/']);
+        this.signupSuccess = true;
+        setTimeout(() => this.router.navigate(['/dashboard']), 1500); // ✅ redirect after 1.5s
       },
-      error: () => {
+      error: (err) => {
         this.signupError = true;
+        this.errorMessage = err?.error?.message || 'Signup failed. Please try again.';
       }
     });
   }

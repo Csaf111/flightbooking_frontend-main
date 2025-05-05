@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // Required for ngModel, ngForm
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { FlightService } from '../services/flight.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule], // ✅ Add FormsModule + CommonModule here
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -24,6 +24,9 @@ export class DashboardComponent implements OnInit {
   };
   editingId: string | null = null;
 
+  bookingMessage: string = '';
+  bookingError: string = '';
+
   constructor(
     private flightService: FlightService,
     public authService: AuthService
@@ -31,54 +34,81 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFlights();
-    const user = this.authService.user;
-    if (user) this.loadBookings();
+    if (this.authService.user) {
+      this.loadBookings();
+    }
   }
 
   loadFlights(): void {
     this.flightService.getAllFlights().subscribe({
       next: flights => this.flights = flights,
-      error: err => console.error('Error loading flights', err)
+      error: err => {
+        console.error('Error loading flights', err);
+        this.bookingError = 'Failed to load flights.';
+      }
     });
   }
 
   loadBookings(): void {
     this.flightService.getAllBookings().subscribe({
       next: data => this.bookings = data,
-      error: err => console.error('Error fetching bookings', err)
+      error: err => {
+        console.error('Error fetching bookings', err);
+        this.bookingError = 'Could not load your bookings.';
+      }
     });
   }
 
   bookFlight(): void {
     this.flightService.createBooking(this.booking).subscribe({
       next: () => {
-        alert('Booking successful');
+        this.bookingMessage = '✅ Booking successful!';
+        this.bookingError = '';
         this.resetForm();
         this.loadBookings();
       },
-      error: err => console.error('Error booking flight', err)
+      error: err => {
+        console.error('Booking failed', err);
+        this.bookingError = '⚠️ Failed to book. Please try again.';
+      }
     });
   }
 
   editBooking(booking: any): void {
     this.booking = { ...booking };
     this.editingId = booking._id;
+    this.bookingMessage = '';
+    this.bookingError = '';
   }
 
   updateBooking(): void {
     if (!this.editingId) return;
     this.flightService.updateBooking(this.editingId, this.booking).subscribe({
       next: () => {
-        alert('Booking updated');
+        this.bookingMessage = '✅ Booking updated successfully!';
+        this.bookingError = '';
         this.resetForm();
         this.loadBookings();
       },
-      error: err => console.error('Error updating booking', err)
+      error: err => {
+        console.error('Update failed', err);
+        this.bookingError = '⚠️ Failed to update booking.';
+      }
     });
   }
 
   deleteBooking(id: string): void {
-    this.flightService.deleteBooking(id).subscribe(() => this.loadBookings());
+    this.flightService.deleteBooking(id).subscribe({
+      next: () => {
+        this.bookingMessage = '✅ Booking canceled.';
+        this.bookingError = '';
+        this.loadBookings();
+      },
+      error: err => {
+        console.error('Delete failed', err);
+        this.bookingError = '⚠️ Failed to cancel booking.';
+      }
+    });
   }
 
   resetForm(): void {

@@ -8,7 +8,6 @@ export class AuthService {
   isLoggedIn$ = this.loggedIn.asObservable();
 
   constructor(private http: HttpClient) {
-    // ✅ Initialize login status only if in browser
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       this.loggedIn.next(!!token);

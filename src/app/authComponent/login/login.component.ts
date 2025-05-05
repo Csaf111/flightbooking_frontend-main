@@ -14,16 +14,22 @@ export class LoginComponent {
   user = { username: '', password: '' };
   loginError = false;
   errorMessage = '';
+  loading = false;
 
   constructor(private router: Router, private authService: AuthService) {}
 
   login(): void {
+    this.loginError = false;
+    this.errorMessage = '';
+    this.loading = true;
+
     this.authService.login(this.user).subscribe({
-      next: () => {
-        this.loginError = false;
+      next: (res: any) => {
+        this.loading = false;
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
+        this.loading = false;
         console.error('Login failed:', err);
         this.loginError = true;
         this.errorMessage = err?.error?.message || 'Login failed. Please try again.';
